@@ -1,0 +1,21 @@
+const errorHandler = (err, req, res, next) => {
+  let statusCode = res.statusCode && res.statusCode !== 200 ? res.statusCode : 500;
+  let message = err.message || 'Server Error';
+
+  if (err.code === 11000) {
+    statusCode = 409;
+    message = 'Duplicate value violates a unique constraint';
+  } else if (err.name === 'ValidationError') {
+    statusCode = 400;
+  } else if (err.name === 'CastError') {
+    statusCode = 400;
+    message = `Invalid value for field '${err.path}'`;
+  }
+
+  res.status(statusCode).json({
+    success: false,
+    message,
+  });
+};
+
+module.exports = errorHandler;
