@@ -16,8 +16,8 @@ import RewardsTable from '../components/RewardsTable';
 import BottomCTAButton from '../components/BottomCTAButton';
 
 // Temporary hardcoded identifiers — real navigation/auth wiring comes later.
-const COMPETITION_ID = '6ab39587b2ea219ab048238e';
-const USER_ID = '6ab39587b2ea219ab048238f';
+const COMPETITION_ID = '6ab4b49e5f591af9823198a0';
+const USER_ID = '6ab4b49e5f591af9823198a1';
 
 export default function CompetitionDetailsScreen() {
   const [data, setData] = useState<CompetitionDetails | null>(null);
