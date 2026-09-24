@@ -14,7 +14,7 @@ const { computeStatus, isRegistrationOpen } = require('../utils/competitionStatu
  * Combines the live competition status with the requesting user's state into
  * a single value the frontend can switch on directly to render its CTA.
  */
-function deriveCtaState(liveStatus, userState) {
+function deriveCtaState(liveStatus, userState, registrationOpen) {
   if (liveStatus === 'registration_open') {
     if (userState === 'registered' || userState === 'submitted') {
       return 'already_registered';
@@ -29,7 +29,9 @@ function deriveCtaState(liveStatus, userState) {
   if (liveStatus === 'submission_open') {
     if (userState === 'submitted') return 'already_submitted';
     if (userState === 'registered') return 'can_submit';
-    return 'registration_closed';
+    // Submissions can open before registration closes, so someone who hasn't
+    // registered yet may still be able to.
+    return registrationOpen ? 'can_register' : 'registration_closed';
   }
 
   if (liveStatus === 'closed') {
@@ -69,7 +71,7 @@ const getCompetitionDetails = asyncHandler(async (req, res) => {
     else userState = 'not_registered';
   }
 
-  const ctaState = deriveCtaState(liveStatus, userState);
+  const ctaState = deriveCtaState(liveStatus, userState, isRegistrationOpen(competition));
 
   res.status(200).json({
     success: true,
@@ -194,7 +196,7 @@ const registerForCompetition = asyncHandler(async (req, res) => {
     data: {
       registrationId: registration._id,
       userState: 'registered',
-      ctaState: deriveCtaState(liveStatus, 'registered'),
+      ctaState: deriveCtaState(liveStatus, 'registered', registrationOpen),
     },
   });
 });
@@ -243,7 +245,7 @@ const submitForCompetition = asyncHandler(async (req, res) => {
     data: {
       submissionId: submission._id,
       userState: 'submitted',
-      ctaState: deriveCtaState(liveStatus, 'submitted'),
+      ctaState: deriveCtaState(liveStatus, 'submitted', isRegistrationOpen(competition)),
     },
   });
 });
