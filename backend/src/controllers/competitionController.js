@@ -8,7 +8,7 @@ const User = require('../models/User');
 // Required so Mongoose registers the "Judge" model referenced by Competition's
 // judgeId — otherwise .populate('judgeId') throws "Schema hasn't been registered".
 require('../models/Judge');
-const computeStatus = require('../utils/competitionStatus');
+const { computeStatus, isRegistrationOpen } = require('../utils/competitionStatus');
 
 /**
  * Combines the live competition status with the requesting user's state into
@@ -112,7 +112,11 @@ const registerForCompetition = asyncHandler(async (req, res) => {
   }
 
   const liveStatus = computeStatus(competition);
-  if (liveStatus !== 'registration_open') {
+  // Checked against registrationDeadline directly rather than liveStatus: when
+  // submissions open early, liveStatus is 'submission_open' while registration
+  // is still legitimately open.
+  const registrationOpen = isRegistrationOpen(competition);
+  if (!registrationOpen) {
     res.status(403);
     throw new Error(`Registration is not open for this competition (current status: ${liveStatus})`);
   }

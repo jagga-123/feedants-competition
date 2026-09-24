@@ -20,4 +20,13 @@ function computeStatus(competition) {
   return now < new Date(resultDate) ? 'closed' : 'results_declared';
 }
 
-module.exports = computeStatus;
+/**
+ * Whether new registrations are still accepted. Tracked separately from the
+ * live status because during an overlapping window the status is
+ * 'submission_open' even though registration hasn't closed yet.
+ */
+function isRegistrationOpen(competition) {
+  return new Date() < new Date(competition.registrationDeadline);
+}
+
+module.exports = { computeStatus, isRegistrationOpen };
