@@ -110,8 +110,11 @@ export default function CompetitionDetailsScreen() {
     );
   }
 
+  // 'can_register' means "not registered yet and registration is still open".
+  // During the overlap window liveStatus is 'submission_open', but that user
+  // can't submit yet — what's about to close for them is registration.
   const countdownConfig =
-    data.liveStatus === 'registration_open'
+    data.liveStatus === 'registration_open' || data.ctaState === 'can_register'
       ? { label: 'Registration closes in', targetDate: data.registrationDeadline }
       : data.liveStatus === 'submission_open'
       ? { label: 'Submission closes in', targetDate: data.submissionEnd }
