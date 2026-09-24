@@ -6,9 +6,9 @@
  * The submission window is evaluated first and independently of the
  * registration deadline: submissionStart may precede registrationDeadline, in
  * which case submissions are open while registration is still open too.
+ * `now` is injectable so the boundaries can be tested deterministically.
  */
-function computeStatus(competition) {
-  const now = new Date();
+function computeStatus(competition, now = new Date()) {
   const { registrationDeadline, submissionStart, submissionEnd, resultDate } = competition;
 
   if (now >= new Date(submissionStart) && now < new Date(submissionEnd)) {
@@ -25,8 +25,8 @@ function computeStatus(competition) {
  * live status because during an overlapping window the status is
  * 'submission_open' even though registration hasn't closed yet.
  */
-function isRegistrationOpen(competition) {
-  return new Date() < new Date(competition.registrationDeadline);
+function isRegistrationOpen(competition, now = new Date()) {
+  return now < new Date(competition.registrationDeadline);
 }
 
 module.exports = { computeStatus, isRegistrationOpen };
