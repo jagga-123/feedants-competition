@@ -183,7 +183,11 @@ All routes are mounted under `/api/competitions`.
   `registration_open` / `registration_closed` / `submission_open` / `closed` / `results_declared` fresh
   from the competition's four date fields on each request. The stored `status` enum on the `Competition`
   model exists only as a cron-updatable fallback for things like sorting/filtering lists — it's never
-  read on this details endpoint.
+  read on this details endpoint. The submission window is evaluated first and independently of the
+  registration deadline, because `submissionStart` may fall *before* `registrationDeadline` (as in the
+  seeded data and the design reference): during that overlap `liveStatus` is `submission_open`, while
+  registration stays open too — `isRegistrationOpen()` tracks that separately, so an unregistered user
+  still gets `can_register` and `POST /register` keeps working until the deadline.
 - **Denormalized `spotsBooked` counter** on the `Competition` document, rather than
   `Registration.countDocuments()` on every read — O(1) reads on a hot endpoint, with correctness
   guaranteed at write time by the atomic update above rather than by recomputing on read.
